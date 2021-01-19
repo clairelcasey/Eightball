@@ -1,6 +1,7 @@
 import { useState } from "react";
 import randomElement from "./randomElement";
 import './EightBall.css'
+import ColorCounter from './ColorCounter';
 
 /** EightBall 
  * 
@@ -16,20 +17,33 @@ import './EightBall.css'
 
 function EightBall({ answers }) {
   const questionData = { msg: "Think of a question.", color: "black" };
+  const initialColors = [...new Set(answers.map((ans) => ans.color))];
+  const initialCountsForColors = initialColors.map(color => ({ color, count: 0 }));
 
   const [isAnswer, setIsAnswer] = useState(false);
   const [msgData, setMsgData] = useState(questionData);
+  const [currCountsForColors, setCurrCountsForColors] = useState(initialCountsForColors);
 
   //  ALTERNATIVE SOLUTION CONSIDERED. Decided against because getting a
   //  random element each time (regardless of if question/ answer).
   //  const color = (isAnswer) ? randAnswer.color : "black";
   //  const text = (isAnswer)? randAnswer.msg : "Think of a question";
 
-  // TODO: add docstring for handleClick
+  /** 
+   * toggles isAnswer and sets msgData with questionData or answer data from answers
+   **/  
   function handleClick() {
     if (!isAnswer) {
       const randAnswer = randomElement(answers);
       setMsgData(randAnswer);
+      
+      for (let ele of currCountsForColors) {
+        if (ele.color === randAnswer.color) {
+          ele.count += 1;
+        }
+      }
+      setCurrCountsForColors(currCountsForColors);
+      
     } else {
       setMsgData(questionData);
     }
@@ -41,9 +55,13 @@ function EightBall({ answers }) {
   }
 
   return (
-    <button className="EightBall" onClick={handleClick} style={styles}>
-      <p>{msgData.msg}</p>
-    </button>
+    <div>
+      <button className="EightBall" onClick={handleClick} style={styles}>
+        <p>{msgData.msg}</p>
+      </button>
+
+      <ColorCounter currCountsForColors={currCountsForColors}/>
+    </div>
   )
 }
 
